@@ -295,3 +295,4 @@ void main()
        co_diff();
        move(grid,start_x,start_y,-1);
 }
+//better
