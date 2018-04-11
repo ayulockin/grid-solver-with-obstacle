@@ -258,7 +258,7 @@ void move(int grid[][3],int x,int y,int val)
                     c_down--;
                     c_y--;
                     down();
-                    move(grid,x+1,y,1);
+                    move(grid,x,y-1,1);
                 }
             }
         }
