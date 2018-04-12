@@ -38,8 +38,8 @@ int grid[SIZE][SIZE];
 int counter=1;
 int uc=0;
 int i,j;
-char stax_x[]=" ";
-char stax_y[]=" ";
+//char stax_x[]=" ";
+//char stax_y[]=" ";
 int state=0;
 int start_x=0;int start_y=0;
 int end_x=2;int end_y=2;
@@ -55,7 +55,7 @@ void setup() {
   Serial.begin(9600);
   queue.setPrinter(Serial);
   
-  grid_solver();
+  grid_solver();//solving grid and storing value in a queue
 
   /*
   while (!queue.isEmpty ()){
@@ -77,20 +77,35 @@ void loop() {
   error_map();
   pid();
 
-  if(!queue.isEmpty()){
-    if ((s1==lc)&&(s2==lc)&&(s3==lc)&&(s4==lc)&&(s5==lc)&&(s6==lc)&&(s7==lc)&&(s8==lc)){
-      delay(10); 
+  if(b_detect<300){
+    if(!queue.isEmpty()){//to check if queue is not empty
+      if ((s1==lc)&&(s2==lc)&&(s3==lc)&&(s4==lc)&&(s5==lc)&&(s6==lc)&&(s7==lc)&&(s8==lc)){//node found
+        delay(10); //overshoot for spability
+        brake();
+        //delay(100);
+        direct(queue.peek(),prev_dir);//decision of the bot on the node
+        prev_dir=queue.pop();//storing poped dir
+      }
+    }
+    else if(queue.isEmpty()){//when destination is reached
       brake();
-      //delay(100);
-      direct(queue.peek(),prev_dir);
-      prev_dir=queue.pop();
-    } 
+      delay(10000);
+    }
   }
-  else if(queue.isEmpty()){
+  else if(b_detect>500){//events after block is detected
+    readsensors_block();
+    while(b_detect<800){
+      readsensors_block();
+      slow_pid();//to prevent bot block collision
+    }
     brake();
-    delay(10000);
+    delay(1000);//halt
+    block_detect();
   }
+  
 }
+
+///////////////////gri/d solved without obstacle to get the shortest path to the destination coordinate//////////
 
 void grid_solver(){
    for(i=0;i<abs(end_x-start_x);i++){
@@ -114,6 +129,8 @@ void grid_solver(){
    queue.enqueue('X');
 }
 
+////////////////////direction determining function depending on current and previous direction////////////
+
 void direct(char dir, char prev_dir) {
   Serial.println("direct");
   brake();
@@ -127,7 +144,7 @@ void direct(char dir, char prev_dir) {
     if (dir == 'E' && prev_dir == 'N') {
       Serial.println(0);
       state = 0;
-      cross();
+      cross(); 
     }
     else if (prev_dir == 'E' && dir == 'S') {
       state = 0;
@@ -160,6 +177,8 @@ void direct(char dir, char prev_dir) {
     }
   }
 }
+
+////////////////////////////function determining bot movement on the cross node/////////////////////
 
 void cross() {
   //Serial.println("cross");
@@ -199,9 +218,38 @@ void cross() {
   right = 1000;
 }
 
+////////////////////////events after block detection is done and bot is at halt//////////////////
+
+void block_detect(){
+  //Serial.println('b');
+  sharp_right_turn();
+  delay(500);
+  readsensors();
+  while(s4!=lc && s5!=lc){
+    sharp_right_turn();
+    readsensors();
+  }
+
+  /////////////////////////this is to be improved/////////////
+  if(prev_dir=='N'){
+    queue.push('S');
+  }
+  else if(prev_dir=='S'){
+    queue.push('N');
+  }
+  else if(prev_dir=='E'){
+    queue.push('W');
+  }
+  else if(prev_dir=='W'){
+    queue.push('E');
+  }
+}
+
 void savetoEEPROM() {
   EEPROM.put(eeAddress, grid);
 }
+
+//////////////////////sensor reading////////////////////////////////
 
 void readsensors() {
   s1 = digitalRead(A0);
@@ -213,6 +261,12 @@ void readsensors() {
   s7 = digitalRead(2);
   s8 = digitalRead(4);
 }
+
+void readsensors_block(){
+  b_detect=analogRead(A5);
+}
+
+/////////////////////////error map////////////////////////
 
 void error_map() {
   if ((s3 == sc) && (s4 == lc) && (s5 == lc) && (s6 == sc))
@@ -265,6 +319,8 @@ void error_map() {
     error = 3.5;
 }
 
+////////////////////pid//////////////////////////
+
 void pid() {
   readsensors();
   error_map();
@@ -302,6 +358,47 @@ void pid() {
   prev_error = error;
 
 }
+
+void slow_pid(){
+  Serial.println("slow_pid");
+  readsensors();
+  error_map();
+
+  pd = 20*error + 80*(error - prev_error);
+ 
+  lms = 90 + pd;
+  rms = 90 - pd;
+
+  if(lms>=120)
+  {
+   lms=120;
+  }
+ 
+  else if(lms<=0)
+  {
+   lms=0;
+  }
+   
+  if(rms>=120)
+  {
+   rms=120;
+  }
+  
+  else if(rms<=0)
+  {
+   rms=0;
+  }
+
+  analogWrite(lm1,lms);
+  analogWrite(lm2,0);
+  analogWrite(rm1,rms);
+  analogWrite(rm2,0);
+
+  prev_error = error;
+
+}
+
+/////////////////////////turn functions//////////////////////////
 
 void straight() {
   analogWrite(lm1, 90);
