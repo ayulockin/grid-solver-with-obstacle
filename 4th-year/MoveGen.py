@@ -15,6 +15,8 @@ def MoveGen(present_state,N):
         data: list of coordinates
         example: [(x1,y1),(x2,y2)]
     '''
+    
+    future_states = []
     # This portion of the code checks for `Vertial` edges
     if present_state[0] == 0:
         # This means that the bot is on the `Left` edge
