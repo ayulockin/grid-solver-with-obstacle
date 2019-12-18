@@ -10,6 +10,13 @@ end = tuple(map(int,input("Enter the ending coordinate eg. x,y : ").split(',')))
 
 N = int(input("ENter the length of one side of the square: "))
 
+num_obstacles = int(input("Enter the number of obstacles: "))
+
+obstacles = []
+
+for i in range(num_obstacles):
+    obstacles.append(tuple(map(int,input("Enter the obstacle coordinate eg. x,y : ").split(','))))  
+    
 openStates = M.MoveGen(start,N)
 closedStates = [start]
 
@@ -22,7 +29,7 @@ while(len(openStates) != 0):
         openStates.remove(openStates[0])
         openStates = openStates[::-1]
         for i in temp:
-            if (not(i in openStates or i in closedStates)):
+            if (not(i in openStates or i in closedStates or i in obstacles)):
                 openStates.append(i)
         openStates = openStates[::-1]
 print(closedStates)
