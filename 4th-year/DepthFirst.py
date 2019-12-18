@@ -1,9 +1,5 @@
 import MoveGen as M
 
-openStates = []
-
-closedStates = []
-
 start = tuple(map(int,input("Enter the starting coordinate eg. x,y : ").split(',')))
 
 end = tuple(map(int,input("Enter the ending coordinate eg. x,y : ").split(',')))
@@ -16,8 +12,9 @@ obstacles = []
 
 for i in range(num_obstacles):
     obstacles.append(tuple(map(int,input("Enter the obstacle coordinate eg. x,y : ").split(','))))  
-    
-closedStates = [start]
+
+openStates = [start]
+closedStates = []
 
 while(len(openStates) != 0):
     if openStates[0] == end:
