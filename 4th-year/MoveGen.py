@@ -28,6 +28,10 @@ def MoveGen(present_state,N):
             # This means that the bot is on the `Top Left` corner
             future_states = [(present_state[0]+1,present_state[1]), # move right
                              (present_state[0],present_state[1]-1)] # move down
+        else:
+            future_states = [(present_state[0]+1,present_state[1]), # move right
+                             (present_state[0],present_state[1]+1), # move up
+                             (present_state[0],present_state[1]-1)] # move down
     elif present_state[0] == N-1:
         # This means that the bot is on the `Right` edge
         if present_state[1] == 0:
@@ -37,6 +41,10 @@ def MoveGen(present_state,N):
         elif present_state[1] == N-1:
             # This means that the bot is on the `Top Right` corner
             future_states = [(present_state[0]-1,present_state[1]), # move left
+                             (present_state[0],present_state[1]-1)] # move down
+        else:
+            future_states = [(present_state[0]-1,present_state[1]), # move left
+                             (present_state[0],present_state[1]+1), # move up
                              (present_state[0],present_state[1]-1)] # move down
 
     # This portion of the code checks for `Horizontal` edges
