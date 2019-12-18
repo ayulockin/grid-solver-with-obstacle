@@ -17,7 +17,6 @@ obstacles = []
 for i in range(num_obstacles):
     obstacles.append(tuple(map(int,input("Enter the obstacle coordinate eg. x,y : ").split(','))))  
 
-openStates = M.MoveGen(start,N)
 closedStates = [start]
 
 while(len(openStates) != 0):
