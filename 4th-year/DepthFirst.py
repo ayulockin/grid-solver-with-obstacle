@@ -18,14 +18,15 @@ closedStates = []
 
 while(len(openStates) != 0):
     if openStates[0] == end:
+        closedStates.append(openStates[0])
         break
     else:
         temp = M.MoveGen(openStates[0],N)
+        newStates = []
         closedStates.append(openStates[0])
         openStates.remove(openStates[0])
-        openStates = openStates[::-1]
         for i in temp:
             if (not(i in openStates or i in closedStates or i in obstacles)):
-                openStates.append(i)
-        openStates = openStates[::-1]
+                newStates.append(i)
+        openStates = newStates + openStates
 print(closedStates)
